@@ -56,7 +56,7 @@ jobs:
             --mutant TABLE-2=http://127.0.0.1:3001 --mutant TABLE-3=http://127.0.0.1:3002 \
             --mutant TABLE-4=http://127.0.0.1:3003 --mutant SIGNUP-1=http://127.0.0.1:3004 \
             --mutant SIGNUP-2=http://127.0.0.1:3005
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: generated-tests
