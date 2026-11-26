@@ -224,6 +224,16 @@ def test_agent_buckets(api, ops, tmp_path):
     assert (tmp_path / "gen" / "test_listproducts.py").exists()
 
 
+def test_relative_output_dir_works(api, ops, tmp_path, monkeypatch):
+    # Regression: run_pytest used cwd=out_dir with a relative path, so pytest found no tests.
+    monkeypatch.chdir(tmp_path)
+    planner = ScriptPlanner(
+        {"listProducts": [{"name": "total", "query": {}, "expect_status": 200, "expect_json": {"total": 23}}]}
+    )
+    res = finish(generate([ops["listProducts"]], planner, api), "generated", api, {})
+    assert res.pytest_ok is True
+
+
 def test_planner_garbage_is_recorded_not_fatal(api, ops):
     class Garbage:
         model = "g"

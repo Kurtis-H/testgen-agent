@@ -94,6 +94,7 @@ def generate(
 
 def run_pytest(out_dir: str, api_url: str) -> tuple[bool, list[str]]:
     """Run the generated files; return (all passed, failing test names)."""
+    out_dir = str(Path(out_dir).resolve())  # pytest runs with cwd=out_dir, so a relative path would break
     junit = Path(out_dir) / ".junit.xml"
     env = {**os.environ, "API_URL": api_url}
     proc = subprocess.run(
