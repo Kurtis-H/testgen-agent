@@ -1,4 +1,4 @@
-# 🤖 testgen-agent
+# testgen-agent
 
 ![CI](https://github.com/Kurtis-H/testgen-agent/actions/workflows/ci.yml/badge.svg)
 
