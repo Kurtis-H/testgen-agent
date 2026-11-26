@@ -15,7 +15,12 @@ jobs:
           python-version: "3.12"
       - run: pip install -e ".[dev]"
       - run: ruff check . && ruff format --check .
-      - run: pytest -q
+      - name: Type check (mypy)
+        run: mypy --ignore-missing-imports src
+      - name: Tests with coverage (fails under 80%)
+        run: pytest -q --cov=testgen_agent --cov-report=term-missing --cov-fail-under=80
+      - name: Dependency vulnerability audit
+        run: pip-audit --skip-editable
 
   # End to end against bug-hunt-lab: generate tests against the correct API, then score
   # them against copies of the API with one known bug each (mutants).
