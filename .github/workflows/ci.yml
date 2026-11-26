@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check . && ruff format --check .
+      - run: pytest -q
+
+  # End to end against bug-hunt-lab: generate tests against the correct API, then score
+  # them against copies of the API with one known bug each (mutants).
+  against-bug-hunt-lab:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/bug-hunt-lab
+          path: bug-hunt-lab
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Start the correct API and five mutants
+        working-directory: bug-hunt-lab
+        run: |
+          start() { BUGS=$1 PORT=$2 ALLOW_TOGGLE=0 nohup node app/server.mjs > /dev/null 2>&1 & }
+          start none 3000
+          start TABLE-2 3001; start TABLE-3 3002; start TABLE-4 3003; start SIGNUP-1 3004; start SIGNUP-2 3005
+          for p in 3000 3001 3002 3003 3004 3005; do
+            for i in $(seq 1 30); do curl -sf "http://127.0.0.1:$p/api/health" > /dev/null && break; sleep 0.5; done
+          done
+      - name: Generate and score (scripted planner - no GPU in CI)
+        run: |
+          testgen --spec examples/bug-hunt-lab.openapi.json --base-url http://127.0.0.1:3000 --provider fake \
+            --out generated --md report.md --min-mutation-score 0.8 \
+            --mutant TABLE-2=http://127.0.0.1:3001 --mutant TABLE-3=http://127.0.0.1:3002 \
+            --mutant TABLE-4=http://127.0.0.1:3003 --mutant SIGNUP-1=http://127.0.0.1:3004 \
+            --mutant SIGNUP-2=http://127.0.0.1:3005
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: generated-tests
+          path: |
+            generated/
+            report.md
