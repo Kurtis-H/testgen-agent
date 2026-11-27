@@ -19,7 +19,7 @@ mutant TABLE-2: caught by test_first_page, test_last_partial_page
 mutant SIGNUP-2: SURVIVED
 ```
 
-See [`examples/report.md`](examples/report.md) for a full report and [`examples/generated/`](examples/generated) for the tests it wrote.
+See [`examples/report.md`](examples/report.md) for a full report and [`examples/generated/`](examples/generated/) for the tests it wrote in that run (scripted planner, against bug-hunt-lab).
 
 ## The guardrails
 
