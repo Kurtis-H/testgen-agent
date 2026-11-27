@@ -7,5 +7,6 @@ generated_tests/
 generated/
 report.md
 !examples/report.md
+!examples/generated/
 build/
 dist/

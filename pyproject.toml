@@ -25,6 +25,8 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 
 [tool.ruff]
+# The example output is kept exactly as testgen wrote it.
+extend-exclude = ["examples/generated"]
 line-length = 120
 target-version = "py311"
 
